@@ -1,0 +1,40 @@
+{
+  "students": [
+    {
+      "name": "Michael Dye",
+      "courses": [
+        "ENCE 420",
+        "ENCE 410",
+        "ENGR 451"
+      ],
+      "grades_by_course": {
+        "ENCE 420": [
+          100,
+          95,
+          98,
+          100,
+          88
+        ],
+        "ENCE 410": [
+          100,
+          80,
+          85,
+          89,
+          90
+        ],
+        "ENGR 451": [
+          100,
+          100,
+          100,
+          95,
+          100
+        ]
+      },
+      "course_credits": {
+        "ENCE 420": 3.0,
+        "ENCE 410": 3.0,
+        "ENGR 451": 1.0
+      }
+    }
+  ]
+}

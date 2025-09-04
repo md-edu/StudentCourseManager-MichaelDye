@@ -1,3 +1,4 @@
+import json
 from typing import Dict, List
 
 class Student:
@@ -83,6 +84,31 @@ class Student:
             return None
         return total_points_times_credits / total_credits
 
+    def to_dict(self) -> dict:
+        return {
+            "name": self.name,
+            "courses": list(self.courses),
+            "grades_by_course": {k: list(v) for k, v in self.grades_by_course.items()},
+            "course_credits": dict(self.course_credits),
+        }
+
+    @classmethod
+    def from_dict(cls, data: dict) -> "Student":
+        name = str(data.get("name", "")).strip()
+        student = cls(name)
+        courses = data.get("courses", []) or []
+        student.courses = [str(c) for c in courses]
+        grades_by_course = data.get("grades_by_course", {}) or {}
+        student.grades_by_course = {str(k): [int(g) for g in v] for k, v in grades_by_course.items()}
+        course_credits = data.get("course_credits", {}) or {}
+        # Convert to floats and keep positive values
+        student.course_credits = {str(k): float(v) for k, v in course_credits.items() if float(v) > 0}
+        # Ensure consistency: every course has dict entries
+        for c in student.courses:
+            student.grades_by_course.setdefault(c, [])
+            student.course_credits.setdefault(c, 0.0)
+        return student
+
 
 class GradeManager:
     def __init__(self) -> None:
@@ -151,3 +177,31 @@ class GradeManager:
         # Optional: sort by name for stable output
         reports.sort(key=lambda r: r["name"].lower())
         return reports
+
+    def to_dict(self) -> dict:
+        return {
+            "students": [s.to_dict() for s in self.students.values()],
+        }
+
+    def save_to_file(self, file_path: str) -> bool:
+        try:
+            with open(file_path, "w", encoding="utf-8") as f:
+                json.dump(self.to_dict(), f, ensure_ascii=False, indent=2)
+            return True
+        except Exception:
+            return False
+
+    def load_from_file(self, file_path: str) -> bool:
+        try:
+            with open(file_path, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            students_data = data.get("students", []) or []
+            self.students.clear()
+            for sd in students_data:
+                student = Student.from_dict(sd)
+                if student.name.strip():
+                    key = student.name.strip().lower()
+                    self.students[key] = student
+            return True
+        except Exception:
+            return False

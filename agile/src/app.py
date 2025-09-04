@@ -7,12 +7,14 @@ def main() -> None:
     MENU = """
 1. Add student
 2. Remove student
-3. Add course to student
-4. Remove course from student
-5. Add grade to a course
+3. Enroll student in a course
+4. Remove a course from a student
+5. Add grades for a course
 6. Display student info
 7. Display all students info
-8. Exit
+8. Save data
+9. Load data
+10. Exit
 Choose an option: """
     while True:
         choice = input(MENU).strip()
@@ -139,6 +141,22 @@ Choose an option: """
                     print(f"Weighted GPA (4.000 scale): {gpa_str}")
                 print("")
         elif choice == "8":
+            path = input("Enter file path to save (default: agile/data/students.json): ").strip()
+            if path == "":
+                path = "agile/data/students.json"
+            if gm.save_to_file(path):
+                print(f"✅ Saved data to {path}")
+            else:
+                print("❌ Failed to save data.")
+        elif choice == "9":
+            path = input("Enter file path to load (default: agile/data/students.json): ").strip()
+            if path == "":
+                path = "agile/data/students.json"
+            if gm.load_from_file(path):
+                print(f"✅ Loaded data from {path} (students: {len(gm.students)})")
+            else:
+                print("❌ Failed to load data.")
+        elif choice == "10":
             print("Bye!")
             break
         else:
