@@ -10,7 +10,8 @@ def main() -> None:
 3. Add course to student
 4. Remove course from student
 5. Add grade to a course
-6. Exit
+6. Display all students info
+7. Exit
 Choose an option: """
     while True:
         choice = input(MENU).strip()
@@ -23,8 +24,17 @@ Choose an option: """
                     course = input("Enter course name (press Enter to finish): ").strip()
                     if course == "":
                         break
-                    if gm.enroll_student_in_course(name, course):
-                        print(f"✅ Added course {course} for {name}.")
+                    credits_str = input(f"Enter credits for {course} (e.g., 3): ").strip()
+                    try:
+                        credits = float(credits_str)
+                    except ValueError:
+                        print("❌ Invalid credits. Enter a number greater than 0.")
+                        continue
+                    if credits <= 0:
+                        print("❌ Credits must be greater than 0.")
+                        continue
+                    if gm.enroll_student_in_course(name, course, credits):
+                        print(f"✅ Added course {course} ({credits} cr) for {name}.")
                     else:
                         print("❌ Could not add course (maybe duplicate or invalid).")
             else:
@@ -41,8 +51,17 @@ Choose an option: """
                 course = input("Enter course name to add (press Enter to finish): ").strip()
                 if course == "":
                     break
-                if gm.enroll_student_in_course(name, course):
-                    print(f"✅ Added course {course} for {name}.")
+                credits_str = input(f"Enter credits for {course} (e.g., 3): ").strip()
+                try:
+                    credits = float(credits_str)
+                except ValueError:
+                    print("❌ Invalid credits. Enter a number greater than 0.")
+                    continue
+                if credits <= 0:
+                    print("❌ Credits must be greater than 0.")
+                    continue
+                if gm.enroll_student_in_course(name, course, credits):
+                    print(f"✅ Added course {course} ({credits} cr) for {name}.")
                 else:
                     print("❌ Could not add course (check student or duplicate).")
         elif choice == "4":
@@ -72,6 +91,30 @@ Choose an option: """
                 else:
                     print("❌ Failed to add grade (check student/course or grade range).")
         elif choice == "6":
+            reports = gm.get_all_students_report()
+            if not reports:
+                print("No students yet.")
+            else:
+                for report in reports:
+                    print(f"\nStudent: {report['name']}")
+                    if not report["courses"]:
+                        print("  (no courses)")
+                    else:
+                        for course_name, info in report["courses"].items():
+                            credits = info.get("credits", 0)
+                            grades = info.get("grades", [])
+                            grades_str = ", ".join(str(g) for g in grades) if grades else "(no grades)"
+                            avg = info.get("average")
+                            avg_str = f"{avg:.2f}" if avg is not None else "N/A"
+                            print(f"  - {course_name} ({credits} cr): grades [{grades_str}], avg {avg_str}")
+                    overall = report.get("overall_average")
+                    overall_str = f"{overall:.2f}" if overall is not None else "N/A"
+                    gpa = report.get("weighted_gpa")
+                    gpa_str = f"{gpa:.3f}" if gpa is not None else "N/A"
+                    print(f"Overall average: {overall_str}")
+                    print(f"Weighted GPA (4.000 scale): {gpa_str}")
+                print("")
+        elif choice == "7":
             print("Bye!")
             break
         else:
