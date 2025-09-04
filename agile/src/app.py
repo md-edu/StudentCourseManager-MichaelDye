@@ -10,8 +10,9 @@ def main() -> None:
 3. Add course to student
 4. Remove course from student
 5. Add grade to a course
-6. Display all students info
-7. Exit
+6. Display student info
+7. Display all students info
+8. Exit
 Choose an option: """
     while True:
         choice = input(MENU).strip()
@@ -91,6 +92,29 @@ Choose an option: """
                 else:
                     print("❌ Failed to add grade (check student/course or grade range).")
         elif choice == "6":
+            name = input("Enter student name to display: ").strip()
+            report = gm.get_student_report(name)
+            if not report:
+                print("❌ Student not found.")
+            else:
+                print(f"\nStudent: {report['name']}")
+                if not report["courses"]:
+                    print("  (no courses)")
+                else:
+                    for course_name, info in report["courses"].items():
+                        credits = info.get("credits", 0)
+                        grades = info.get("grades", [])
+                        grades_str = ", ".join(str(g) for g in grades) if grades else "(no grades)"
+                        avg = info.get("average")
+                        avg_str = f"{avg:.2f}" if avg is not None else "N/A"
+                        print(f"  - {course_name} ({credits} cr): grades [{grades_str}], avg {avg_str}")
+                overall = report.get("overall_average")
+                overall_str = f"{overall:.2f}" if overall is not None else "N/A"
+                gpa = report.get("weighted_gpa")
+                gpa_str = f"{gpa:.3f}" if gpa is not None else "N/A"
+                print(f"Overall average: {overall_str}")
+                print(f"Weighted GPA (4.000 scale): {gpa_str}\n")
+        elif choice == "7":
             reports = gm.get_all_students_report()
             if not reports:
                 print("No students yet.")
@@ -114,7 +138,7 @@ Choose an option: """
                     print(f"Overall average: {overall_str}")
                     print(f"Weighted GPA (4.000 scale): {gpa_str}")
                 print("")
-        elif choice == "7":
+        elif choice == "8":
             print("Bye!")
             break
         else:
