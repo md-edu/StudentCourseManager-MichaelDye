@@ -33,6 +33,21 @@ class Student:
         self.grades_by_course.setdefault(course_name, []).append(grade)
         return True
 
+    def get_course_average(self, course_name: str) -> float | None:
+        course_name = course_name.strip()
+        grades = self.grades_by_course.get(course_name)
+        if not grades:
+            return None
+        return sum(grades) / len(grades)
+
+    def compute_overall_average(self) -> float | None:
+        all_grades: List[int] = []
+        for grades in self.grades_by_course.values():
+            all_grades.extend(grades)
+        if not all_grades:
+            return None
+        return sum(all_grades) / len(all_grades)
+
 
 class GradeManager:
     def __init__(self) -> None:
@@ -69,3 +84,22 @@ class GradeManager:
         if key not in self.students:
             return False
         return self.students[key].add_grade(course_name.strip(), grade)
+
+    def get_student_report(self, name: str) -> dict | None:
+        key = name.strip().lower()
+        student = self.students.get(key)
+        if not student:
+            return None
+        courses: Dict[str, dict] = {}
+        for course in student.courses:
+            grades = list(student.grades_by_course.get(course, []))
+            avg = student.get_course_average(course)
+            courses[course] = {
+                "grades": grades,
+                "average": avg,
+            }
+        return {
+            "name": student.name,
+            "courses": courses,
+            "overall_average": student.compute_overall_average(),
+        }
